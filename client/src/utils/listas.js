@@ -1,0 +1,18 @@
+// Mesmas listas do backend (server/src/validators/listas.js)
+export const TIPOS_SANGUINEOS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Não sei']
+
+export const CONVENIOS = [
+  'Particular',
+  'SUS',
+  'Unimed',
+  'Bradesco Saúde',
+  'SulAmérica',
+  'Amil',
+  'Hapvida',
+  'Outro'
+]
+
+export const ESTADOS = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA',
+  'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+]

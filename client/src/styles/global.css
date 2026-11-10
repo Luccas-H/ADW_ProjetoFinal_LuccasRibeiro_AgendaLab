@@ -175,6 +175,24 @@ a {
   color: var(--azul);
 }
 
+.menu-usuario {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  padding-left: 16px;
+  border-left: 1px solid var(--borda);
+}
+
+.menu-usuario strong {
+  color: var(--azul-escuro);
+  font-size: 0.9375rem;
+}
+
+.menu-usuario small {
+  color: var(--texto-suave);
+  font-size: 0.8125rem;
+}
+
 .menu-botao {
   display: none;
   background: none;
@@ -240,6 +258,10 @@ a {
 .botao-pequeno {
   padding: 6px 12px;
   font-size: 0.875rem;
+}
+
+.botao-largo {
+  width: 100%;
 }
 
 .botao-link {
@@ -308,6 +330,56 @@ a {
   margin: 0;
   color: var(--vermelho);
   font-size: 0.875rem;
+}
+
+.dica {
+  margin: 0 0 16px;
+  font-size: 0.875rem;
+  color: var(--texto-suave);
+}
+
+.dica-cep {
+  align-self: center;
+}
+
+.formulario fieldset {
+  margin: 0 0 20px;
+  padding: 16px 20px 4px;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+.formulario legend {
+  padding: 0 6px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--azul-escuro);
+}
+
+.form-grade {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+}
+
+.form-grade .largo {
+  grid-column: 1 / -1;
+}
+
+.caixa-login {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.caixa-formulario {
+  max-width: 800px;
+}
+
+.rodape-caixa {
+  margin: 20px 0 0;
+  text-align: center;
 }
 
 /* Alertas e carregamento */
@@ -632,6 +704,24 @@ a {
 
   .menu .botao {
     margin-top: 8px;
+  }
+
+  .menu-usuario {
+    padding: 12px 0;
+    border-left: none;
+    border-top: 1px solid var(--borda);
+  }
+
+  .form-grade {
+    grid-template-columns: 1fr;
+  }
+
+  .dica-cep {
+    margin-top: -8px;
+  }
+
+  .caixa-login {
+    padding: 20px;
   }
 
   .hero-conteudo {
