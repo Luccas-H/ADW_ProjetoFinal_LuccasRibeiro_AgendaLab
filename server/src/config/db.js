@@ -4,8 +4,8 @@ const mongoose = require('mongoose')
 // As consultas do próprio sistema que usam operadores passam por mongoose.trusted().
 mongoose.set('sanitizeFilter', true)
 
-async function conectar(uri) {
-  await mongoose.connect(uri)
+async function conectar(uri, opcoes = {}) {
+  await mongoose.connect(uri, opcoes)
 }
 
 module.exports = { conectar }

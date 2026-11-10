@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const helmet = require('helmet')
 const { tratarErros, rotaNaoEncontrada } = require('./middlewares/erros')
+const authRoutes = require('./routes/auth')
 
 const app = express()
 
@@ -15,6 +16,8 @@ app.use(express.json({ limit: '10kb' }))
 app.get('/api/saude', (req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use('/api/auth', authRoutes)
 
 app.use(rotaNaoEncontrada)
 app.use(tratarErros)
