@@ -164,4 +164,4 @@ async function cancelar(req, res) {
   res.json(resposta)
 }
 
-module.exports = { listar, meus, criar, excluir, agendar, cancelar }
+module.exports = { listar, meus, criar, excluir, agendar, cancelar, buscarHorarios }

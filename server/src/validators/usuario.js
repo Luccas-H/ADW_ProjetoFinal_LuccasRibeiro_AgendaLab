@@ -44,4 +44,33 @@ const loginSchema = Joi.object({
   senha: Joi.string().max(64).required()
 })
 
-module.exports = { dadosPacienteSchema, cadastroSchema, loginSchema }
+const recepcionistaSchema = Joi.object({
+  nome: campos.nome.required(),
+  usuario: campos.usuario.required(),
+  email: campos.email.required(),
+  senha: campos.senha.required()
+})
+
+const dadosEquipeSchema = Joi.object({
+  nome: campos.nome.required(),
+  email: campos.email.required()
+})
+
+const filtroUsuariosSchema = Joi.object({
+  perfil: Joi.string().valid('paciente', 'recepcionista', 'admin'),
+  busca: Joi.string().trim().max(60).allow('')
+})
+
+const buscaPacienteSchema = Joi.object({
+  q: Joi.string().trim().min(2).max(60).required()
+})
+
+module.exports = {
+  dadosPacienteSchema,
+  cadastroSchema,
+  loginSchema,
+  recepcionistaSchema,
+  dadosEquipeSchema,
+  filtroUsuariosSchema,
+  buscaPacienteSchema
+}
