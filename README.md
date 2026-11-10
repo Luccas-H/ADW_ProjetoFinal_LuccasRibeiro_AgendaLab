@@ -34,7 +34,7 @@ As permissões são conferidas no backend, em todas as rotas. Esconder um botão
 Pré-requisitos:
 
 - Node.js 20 ou mais novo
-- Um banco MongoDB. O mais simples é uma conta gratuita no [MongoDB Atlas](https://www.mongodb.com/atlas) (veja o passo a passo mais abaixo).
+- Um banco MongoDB. Pode ser uma conta gratuita no [MongoDB Atlas](https://www.mongodb.com/atlas) (veja o passo a passo mais abaixo) ou um MongoDB local, por exemplo com Docker: `docker run -d --name agendalab-mongo -p 27017:27017 mongo:8`. Com o MongoDB local, use `MONGODB_URI=mongodb://localhost:27017/agendalab`.
 
 ### 1. Backend
 
@@ -67,6 +67,23 @@ npm start
 O site fica em `http://localhost:5173`. Entre com o usuário e a senha de Admin que você colocou no `.env` do backend.
 
 No Windows, use `copy` no lugar de `cp`.
+
+### 3. Dados de exemplo (opcional)
+
+Para não começar com o banco vazio, rode na pasta `server`:
+
+```bash
+npm run popular
+```
+
+O script cria 6 especialidades, 8 médicos, horários livres nos dias úteis das próximas duas semanas e algumas consultas marcadas. Ele também cria estas contas:
+
+| Perfil | Usuário | Senha |
+|---|---|---|
+| Recepcionista | `recepcao` | `recepcao123` |
+| Paciente | `maria.silva`, `joao.souza` ou `ana.lima` | `paciente123` |
+
+O Admin continua sendo o do `npm run criar-admin`. Pode rodar o script mais de uma vez sem duplicar nada, e ele não roda com `NODE_ENV=production`.
 
 ### Variáveis de ambiente
 
@@ -112,7 +129,7 @@ npm test
 
 Os testes não precisam de configuração: eles sobem um MongoDB temporário em memória. Na primeira vez, o MongoDB é baixado (cerca de 120 MB), então demora um pouco mais.
 
-São 95 testes, que cobrem:
+São 99 testes, que cobrem:
 
 - cadastro e validação (CPF, senha, campos obrigatórios, tentativa de se cadastrar como Admin)
 - login, token e bloqueio depois de 5 senhas erradas
@@ -121,6 +138,7 @@ São 95 testes, que cobrem:
 - agendamento: horário ocupado, dois pacientes clicando ao mesmo tempo, uma consulta por especialidade, desmarcar
 - gestão de usuários, busca de pacientes e painel
 - avisos em tempo real com Socket.io
+- script de dados de exemplo (não duplica e as contas funcionam no login)
 
 ## Deploy
 
@@ -192,7 +210,7 @@ server/
     socket.js       avisos em tempo real
     app.js          configuração do Express
     server.js       inicia o servidor
-  scripts/          criarAdmin.js
+  scripts/          criarAdmin.js e popular.js (dados de exemplo)
   tests/            testes com Jest
 client/
   src/
