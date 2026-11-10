@@ -1,12 +1,24 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import api from '../api/api'
 import Alerta from './Alerta'
 import Campo from './Campo'
 import Modal from './Modal'
-import { formatarData, formatarHora, mascaraTelefone } from '../utils/formatar'
+import { apenasDigitos, formatarData, formatarHora, mascaraTelefone } from '../utils/formatar'
 import { mensagemErro } from '../utils/erros'
 
-// Janela em que a recepção procura o paciente (pelo nome ou CPF completo) e marca o horário
+// Texto só com números, pontos e traço: a pessoa está digitando um CPF
+function pareceCpf(texto) {
+  return /^[\d.\-\s]+$/.test(texto)
+}
+
+// Só busca com 2 letras do nome ou com o CPF completo
+function podeBuscar(texto) {
+  if (pareceCpf(texto)) return apenasDigitos(texto).length === 11
+  return texto.length >= 2
+}
+
+// Janela em que a recepção procura o paciente e marca o horário.
+// Os resultados aparecem enquanto a pessoa digita.
 function MarcarParaPaciente({ horario, onFechar, onMarcado }) {
   const [busca, setBusca] = useState('')
   const [resultados, setResultados] = useState(null)
@@ -14,23 +26,37 @@ function MarcarParaPaciente({ horario, onFechar, onMarcado }) {
   const [marcandoId, setMarcandoId] = useState(null)
   const [erro, setErro] = useState('')
 
-  async function buscar(evento) {
-    evento.preventDefault()
-    setErro('')
+  useEffect(() => {
+    const texto = busca.trim()
+    if (!podeBuscar(texto)) return
 
-    if (busca.trim().length < 2) {
-      setErro('Digite pelo menos 2 letras do nome ou o CPF completo.')
-      return
+    let ativo = true
+    // Espera a pessoa parar de digitar um instante antes de buscar
+    const espera = setTimeout(async () => {
+      try {
+        const resposta = await api.get('/pacientes/busca', { params: { q: texto } })
+        if (ativo) setResultados(resposta.data)
+      } catch (falha) {
+        if (ativo) setErro(mensagemErro(falha))
+      } finally {
+        if (ativo) setBuscando(false)
+      }
+    }, 300)
+
+    return () => {
+      ativo = false
+      clearTimeout(espera)
     }
+  }, [busca])
 
-    setBuscando(true)
-    try {
-      const resposta = await api.get('/pacientes/busca', { params: { q: busca.trim() } })
-      setResultados(resposta.data)
-    } catch (falha) {
-      setErro(mensagemErro(falha))
-    } finally {
+  function digitar(valor) {
+    setBusca(valor)
+    setErro('')
+    if (podeBuscar(valor.trim())) {
+      setBuscando(true)
+    } else {
       setBuscando(false)
+      setResultados(null)
     }
   }
 
@@ -46,6 +72,14 @@ function MarcarParaPaciente({ horario, onFechar, onMarcado }) {
     }
   }
 
+  const texto = busca.trim()
+  let dica = 'Digite pelo menos 2 letras do nome ou o CPF completo.'
+  if (texto && pareceCpf(texto) && apenasDigitos(texto).length < 11) {
+    dica = 'Continue digitando: o CPF precisa ter os 11 números.'
+  } else if (buscando) {
+    dica = 'Procurando...'
+  }
+
   return (
     <Modal titulo="Marcar consulta" onFechar={onFechar}>
       <p className="texto-suave">
@@ -55,20 +89,19 @@ function MarcarParaPaciente({ horario, onFechar, onMarcado }) {
 
       {erro && <Alerta>{erro}</Alerta>}
 
-      <form className="filtros" onSubmit={buscar}>
-        <Campo
-          id="busca-paciente"
-          rotulo="Nome ou CPF do paciente"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          autoFocus
-        />
-        <button type="submit" className="botao botao-contorno" disabled={buscando}>
-          {buscando ? 'Buscando...' : 'Buscar'}
-        </button>
-      </form>
+      <Campo
+        id="busca-paciente"
+        rotulo="Nome ou CPF do paciente"
+        value={busca}
+        onChange={(e) => digitar(e.target.value)}
+        autoComplete="off"
+        autoFocus
+      />
+      <p className="dica" aria-live="polite">
+        {dica}
+      </p>
 
-      {resultados && resultados.length === 0 && (
+      {resultados && !buscando && resultados.length === 0 && (
         <p className="texto-suave">
           Nenhum paciente encontrado. O paciente precisa ter conta no AgendaLab.
         </p>
