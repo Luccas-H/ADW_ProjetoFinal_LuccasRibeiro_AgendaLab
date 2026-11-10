@@ -39,4 +39,9 @@ const cadastroSchema = Joi.object({
   cpf: campos.cpf.required()
 })
 
-module.exports = { dadosPacienteSchema, cadastroSchema }
+const loginSchema = Joi.object({
+  usuario: Joi.string().trim().lowercase().max(20).required(),
+  senha: Joi.string().max(64).required()
+})
+
+module.exports = { dadosPacienteSchema, cadastroSchema, loginSchema }
