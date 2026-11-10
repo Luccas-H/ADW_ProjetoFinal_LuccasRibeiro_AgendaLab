@@ -3,6 +3,8 @@ const cors = require('cors')
 const helmet = require('helmet')
 const { tratarErros, rotaNaoEncontrada } = require('./middlewares/erros')
 const authRoutes = require('./routes/auth')
+const especialidadeRoutes = require('./routes/especialidades')
+const medicoRoutes = require('./routes/medicos')
 
 const app = express()
 
@@ -18,6 +20,8 @@ app.get('/api/saude', (req, res) => {
 })
 
 app.use('/api/auth', authRoutes)
+app.use('/api/especialidades', especialidadeRoutes)
+app.use('/api/medicos', medicoRoutes)
 
 app.use(rotaNaoEncontrada)
 app.use(tratarErros)
