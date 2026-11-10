@@ -3,6 +3,7 @@ const Horario = require('../models/Horario')
 const Medico = require('../models/Medico')
 const Usuario = require('../models/Usuario')
 const ErroHttp = require('../utils/ErroHttp')
+const { formatarDiaHora } = require('../utils/datas')
 const { notificarConsultaMarcada, notificarHorariosMudaram } = require('../socket')
 
 const UM_DIA = 24 * 60 * 60 * 1000
@@ -121,17 +122,35 @@ async function agendar(req, res) {
   const horario = await buscarHorario(req.params.id)
   const agora = new Date()
 
-  if (await Horario.exists({ paciente: paciente._id, dataHora: horario.dataHora })) {
-    throw new ErroHttp(409, 'O paciente já tem uma consulta nesse horário')
-  }
+  // As mensagens dizem qual consulta já existe, para quem está marcando saber o que fazer
+  const quem = req.usuario.perfil === 'paciente' ? 'Você' : paciente.nome
 
-  const temConsultaNaEspecialidade = await Horario.exists({
+  // A regra da especialidade vem primeiro, porque é a que tem a ver com o que está sendo marcado
+  const naEspecialidade = await Horario.findOne({
     paciente: paciente._id,
     especialidade: horario.especialidade,
     dataHora: mongoose.trusted({ $gt: agora })
   })
-  if (temConsultaNaEspecialidade) {
-    throw new ErroHttp(409, 'O paciente já tem uma consulta marcada nessa especialidade')
+    .populate('medico', 'nome')
+    .populate('especialidade', 'nome')
+  if (naEspecialidade) {
+    throw new ErroHttp(
+      409,
+      `${quem} já tem uma consulta de ${naEspecialidade.especialidade.nome} marcada com ` +
+        `${naEspecialidade.medico.nome} em ${formatarDiaHora(naEspecialidade.dataHora)}. ` +
+        'Para trocar, desmarque essa consulta primeiro.'
+    )
+  }
+
+  const noMesmoHorario = await Horario.findOne({ paciente: paciente._id, dataHora: horario.dataHora })
+    .populate('medico', 'nome')
+    .populate('especialidade', 'nome')
+  if (noMesmoHorario) {
+    throw new ErroHttp(
+      409,
+      `${quem} já tem uma consulta de ${noMesmoHorario.especialidade.nome} com ` +
+        `${noMesmoHorario.medico.nome} nesse mesmo horário (${formatarDiaHora(noMesmoHorario.dataHora)}).`
+    )
   }
 
   // Só marca se o horário ainda estiver livre e no futuro, numa operação só.

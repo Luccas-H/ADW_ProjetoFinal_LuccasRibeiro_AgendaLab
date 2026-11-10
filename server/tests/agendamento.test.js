@@ -103,7 +103,12 @@ test('pacienteId de uma recepcionista dá 400', async () => {
   expect(res.body.erro).toBe('Paciente não encontrado')
 })
 
-test('não marca duas consultas na mesma especialidade', async () => {
+// "11/11" do dia de amanhã, como aparece nas mensagens
+function diaMes(data) {
+  return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
+
+test('não marca duas consultas na mesma especialidade e diz qual já existe', async () => {
   const medico = await criarMedico('Cardiologia')
   const primeiro = await criarHorario(medico, amanha(9))
   const segundo = await criarHorario(medico, amanha(10))
@@ -113,11 +118,15 @@ test('não marca duas consultas na mesma especialidade', async () => {
   const res = await agendar(segundo, paciente)
 
   expect(res.status).toBe(409)
-  expect(res.body.erro).toBe('O paciente já tem uma consulta marcada nessa especialidade')
+  expect(res.body.erro).toBe(
+    `Você já tem uma consulta de Cardiologia marcada com ${medico.nome} em ${diaMes(amanha())} às 09:00. ` +
+      'Para trocar, desmarque essa consulta primeiro.'
+  )
 })
 
-test('não marca dois horários no mesmo dia e hora', async () => {
-  const cardiologia = await criarHorario(await criarMedico('Cardiologia'), amanha(9))
+test('não marca dois horários no mesmo dia e hora e diz qual consulta ocupa o horário', async () => {
+  const cardiologista = await criarMedico('Cardiologia')
+  const cardiologia = await criarHorario(cardiologista, amanha(9))
   const pediatria = await criarHorario(await criarMedico('Pediatria'), amanha(9))
   const paciente = await criarUsuario()
   await agendar(cardiologia, paciente)
@@ -125,7 +134,60 @@ test('não marca dois horários no mesmo dia e hora', async () => {
   const res = await agendar(pediatria, paciente)
 
   expect(res.status).toBe(409)
-  expect(res.body.erro).toBe('O paciente já tem uma consulta nesse horário')
+  expect(res.body.erro).toBe(
+    `Você já tem uma consulta de Cardiologia com ${cardiologista.nome} nesse mesmo horário ` +
+      `(${diaMes(amanha())} às 09:00).`
+  )
+})
+
+test('retorno: depois que a consulta passou, a recepção marca outra com o mesmo médico no mesmo horário em outro dia', async () => {
+  const medico = await criarMedico('Cardiologia')
+  const paciente = await criarUsuario()
+  const ontemAs8 = amanha(8)
+  ontemAs8.setDate(ontemAs8.getDate() - 2)
+  await criarHorario(medico, ontemAs8, paciente)
+  const retorno = await criarHorario(medico, amanha(8))
+
+  const res = await agendar(retorno, await criarUsuario('recepcionista'), {
+    pacienteId: String(paciente._id)
+  })
+
+  expect(res.status).toBe(200)
+  expect(await pacienteDoHorario(retorno)).toBe(String(paciente._id))
+})
+
+test('retorno marcado logo depois da consulta, no mesmo dia, também é aceito', async () => {
+  const medico = await criarMedico('Cardiologia')
+  const paciente = await criarUsuario()
+  await criarHorario(medico, new Date(Date.now() - 60 * 60 * 1000), paciente)
+  const retorno = await criarHorario(medico, amanha(8))
+
+  const res = await agendar(retorno, await criarUsuario('recepcionista'), {
+    pacienteId: String(paciente._id)
+  })
+
+  expect(res.status).toBe(200)
+})
+
+test('conflito de especialidade aparece antes do conflito de horário', async () => {
+  // Caso do teste manual: Cardiologia às 08:00 e Clínica Geral às 14:00;
+  // tentar Cardiologia às 14:00 tem que falar da Cardiologia, não da Clínica Geral
+  const cardiologista = await criarMedico('Cardiologia')
+  const clinico = await criarMedico('Clínica Geral')
+  const paciente = await criarUsuario()
+  await criarHorario(cardiologista, amanha(8), paciente)
+  await criarHorario(clinico, amanha(14), paciente)
+  const tentativa = await criarHorario(cardiologista, amanha(14))
+
+  const res = await agendar(tentativa, await criarUsuario('recepcionista'), {
+    pacienteId: String(paciente._id)
+  })
+
+  expect(res.status).toBe(409)
+  expect(res.body.erro).toBe(
+    `${paciente.nome} já tem uma consulta de Cardiologia marcada com ${cardiologista.nome} ` +
+      `em ${diaMes(amanha())} às 08:00. Para trocar, desmarque essa consulta primeiro.`
+  )
 })
 
 test('dois pacientes ao mesmo tempo: só um consegue', async () => {

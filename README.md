@@ -129,7 +129,7 @@ npm test
 
 Os testes não precisam de configuração: eles sobem um MongoDB temporário em memória. Na primeira vez, o MongoDB é baixado (cerca de 120 MB), então demora um pouco mais.
 
-São 99 testes, que cobrem:
+São 100 testes, que cobrem:
 
 - cadastro e validação (CPF, senha, campos obrigatórios, tentativa de se cadastrar como Admin)
 - login, token e bloqueio depois de 5 senhas erradas
