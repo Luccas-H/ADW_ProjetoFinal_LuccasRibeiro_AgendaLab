@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import api from '../../api/api'
+import useAuth from '../../hooks/useAuth'
 import Spinner from '../../components/Spinner'
 import Alerta from '../../components/Alerta'
+import { areaInicial } from '../../utils/rotas'
 
 function Home() {
+  const { usuario } = useAuth()
   const [especialidades, setEspecialidades] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
@@ -35,12 +38,15 @@ function Home() {
               Escolha a especialidade, veja os horários livres e confirme em poucos cliques.
             </p>
             <div className="hero-acoes">
-              <Link to="/login" className="botao">
-                Agendar consulta
+              {/* Quem já está logado vai direto para a própria área */}
+              <Link to={usuario ? areaInicial(usuario.perfil) : '/login'} className="botao">
+                {usuario && usuario.perfil !== 'paciente' ? 'Abrir o painel' : 'Agendar consulta'}
               </Link>
-              <Link to="/cadastro" className="botao botao-contorno">
-                Criar conta
-              </Link>
+              {!usuario && (
+                <Link to="/cadastro" className="botao botao-contorno">
+                  Criar conta
+                </Link>
+              )}
             </div>
             <p className="aviso-emergencia">
               Em caso de emergência, ligue 192 (SAMU) ou vá direto ao pronto-socorro. O AgendaLab

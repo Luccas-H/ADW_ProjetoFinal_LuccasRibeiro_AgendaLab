@@ -609,12 +609,103 @@ a {
 }
 
 .horario-livre,
-.horario-ocupado {
+.horario-ocupado,
+.horario-meu {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
   padding: 8px 14px;
   border: 1px solid transparent;
   border-radius: var(--raio);
   font: inherit;
   font-weight: 700;
+  text-align: left;
+}
+
+.horarios small {
+  font-size: 0.8125rem;
+  font-weight: 400;
+}
+
+.horario-meu {
+  background: var(--azul-claro);
+  border-color: #b9cff0;
+  color: var(--azul);
+}
+
+.horario-livre[aria-pressed='true'] {
+  background: var(--verde);
+  border-color: var(--verde);
+  color: var(--branco);
+}
+
+.confirmacao {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background: var(--branco);
+  border: 1px solid #a5d6a7;
+  border-left: 4px solid var(--verde);
+  border-radius: var(--raio);
+}
+
+.lista-consultas {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+
+.consulta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+}
+
+.consulta-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  padding: 6px 8px;
+  border-radius: var(--raio);
+  background: var(--azul-claro);
+  color: var(--azul-escuro);
+  line-height: 1.1;
+}
+
+.consulta-data strong {
+  font-size: 1.5rem;
+}
+
+.consulta-data small {
+  font-size: 0.8125rem;
+}
+
+.consulta-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 180px;
+}
+
+.consulta-info strong {
+  color: var(--azul-escuro);
+}
+
+.consulta-passada .consulta-data {
+  background: var(--cinza-ocupado);
+  color: #6b7686;
+}
+
+.consulta-passada .consulta-info strong,
+.consulta-passada .consulta-info span {
+  color: #6b7686;
 }
 
 .horario-livre {

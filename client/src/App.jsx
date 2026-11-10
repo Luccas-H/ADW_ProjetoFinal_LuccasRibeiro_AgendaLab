@@ -7,6 +7,8 @@ import Home from './pages/publico/Home'
 import Login from './pages/publico/Login'
 import Cadastro from './pages/publico/Cadastro'
 import NaoEncontrada from './pages/publico/NaoEncontrada'
+import Agendar from './pages/paciente/Agendar'
+import MinhasConsultas from './pages/paciente/MinhasConsultas'
 import MeusDados from './pages/paciente/MeusDados'
 import Painel from './pages/equipe/Painel'
 import Agenda from './pages/equipe/Agenda'
@@ -30,6 +32,8 @@ function App() {
           <Route path="/cadastro" element={<Cadastro />} />
 
           <Route element={<RotaProtegida perfis={['paciente']} />}>
+            <Route path="/paciente/agendar" element={<Agendar />} />
+            <Route path="/paciente/consultas" element={<MinhasConsultas />} />
             <Route path="/paciente/dados" element={<MeusDados />} />
           </Route>
 
