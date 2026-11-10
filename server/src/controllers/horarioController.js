@@ -3,6 +3,7 @@ const Horario = require('../models/Horario')
 const Medico = require('../models/Medico')
 const Usuario = require('../models/Usuario')
 const ErroHttp = require('../utils/ErroHttp')
+const { notificarConsultaMarcada, notificarHorariosMudaram } = require('../socket')
 
 const UM_DIA = 24 * 60 * 60 * 1000
 
@@ -80,6 +81,8 @@ async function criar(req, res) {
     especialidade: medico.especialidade,
     dataHora: req.body.dataHora
   })
+
+  notificarHorariosMudaram(horario.especialidade)
   res.status(201).json(horario)
 }
 
@@ -91,37 +94,39 @@ async function excluir(req, res) {
   }
 
   await horario.deleteOne()
+
+  notificarHorariosMudaram(horario.especialidade)
   res.status(204).end()
 }
 
 // O paciente sempre marca para si mesmo. A equipe precisa dizer para qual paciente.
 async function escolherPaciente(req) {
   if (req.usuario.perfil === 'paciente') {
-    return req.usuario._id
+    return req.usuario
   }
 
   if (!req.body.pacienteId) {
     throw new ErroHttp(400, 'Dados inválidos', { pacienteId: 'Escolha o paciente' })
   }
 
-  const paciente = await Usuario.exists({ _id: req.body.pacienteId, perfil: 'paciente' })
+  const paciente = await Usuario.findOne({ _id: req.body.pacienteId, perfil: 'paciente' })
   if (!paciente) {
     throw new ErroHttp(400, 'Paciente não encontrado')
   }
-  return paciente._id
+  return paciente
 }
 
 async function agendar(req, res) {
-  const pacienteId = await escolherPaciente(req)
+  const paciente = await escolherPaciente(req)
   const horario = await buscarHorario(req.params.id)
   const agora = new Date()
 
-  if (await Horario.exists({ paciente: pacienteId, dataHora: horario.dataHora })) {
+  if (await Horario.exists({ paciente: paciente._id, dataHora: horario.dataHora })) {
     throw new ErroHttp(409, 'O paciente já tem uma consulta nesse horário')
   }
 
   const temConsultaNaEspecialidade = await Horario.exists({
-    paciente: pacienteId,
+    paciente: paciente._id,
     especialidade: horario.especialidade,
     dataHora: mongoose.trusted({ $gt: agora })
   })
@@ -133,7 +138,7 @@ async function agendar(req, res) {
   // Assim dois pacientes clicando juntos não ficam com o mesmo horário.
   const marcado = await Horario.findOneAndUpdate(
     { _id: horario._id, paciente: null, dataHora: mongoose.trusted({ $gt: agora }) },
-    { paciente: pacienteId },
+    { paciente: paciente._id },
     { returnDocument: 'after' }
   )
   if (!marcado) {
@@ -141,6 +146,15 @@ async function agendar(req, res) {
   }
 
   const [resposta] = await buscarHorarios({ _id: marcado._id }, req.usuario)
+
+  notificarConsultaMarcada({
+    paciente: paciente.nome,
+    especialidade: resposta.especialidade.nome,
+    medico: resposta.medico.nome,
+    dataHora: resposta.dataHora
+  })
+  notificarHorariosMudaram(marcado.especialidade)
+
   res.json(resposta)
 }
 
@@ -159,6 +173,7 @@ async function cancelar(req, res) {
 
   horario.paciente = null
   await horario.save()
+  notificarHorariosMudaram(horario.especialidade)
 
   const [resposta] = await buscarHorarios({ _id: horario._id }, req.usuario)
   res.json(resposta)

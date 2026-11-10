@@ -4,6 +4,7 @@ process.env.TZ = process.env.TZ || 'America/Boa_Vista'
 const http = require('http')
 const app = require('./app')
 const { conectar } = require('./config/db')
+const { iniciarSocket } = require('./socket')
 
 const { MONGODB_URI, JWT_SECRET, PORT = 3001 } = process.env
 
@@ -16,6 +17,8 @@ async function iniciar() {
   await conectar(MONGODB_URI)
 
   const servidor = http.createServer(app)
+  iniciarSocket(servidor)
+
   servidor.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`)
   })
