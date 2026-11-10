@@ -315,6 +315,11 @@ a {
   color: var(--texto);
 }
 
+.campo input,
+.campo select {
+  min-height: 46px;
+}
+
 .campo input:read-only {
   background: var(--fundo);
   color: var(--texto-suave);
@@ -365,6 +370,118 @@ a {
 
 .form-grade .largo {
   grid-column: 1 / -1;
+}
+
+.bloco-formulario {
+  margin-bottom: 24px;
+}
+
+.bloco-formulario h2 {
+  font-size: 1.25rem;
+}
+
+.acoes-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.cabecalho-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.cabecalho-pagina h1 {
+  margin: 0;
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.filtros .campo {
+  min-width: 220px;
+  margin-bottom: 0;
+}
+
+/* Janela (modal) */
+
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 48px 16px;
+  overflow-y: auto;
+  background: rgba(15, 47, 95, 0.45);
+}
+
+.modal {
+  width: 100%;
+  max-width: 560px;
+  padding: 24px;
+  background: var(--branco);
+  border-radius: var(--raio);
+  box-shadow: 0 12px 40px rgba(15, 47, 95, 0.25);
+}
+
+.modal-largo {
+  max-width: 840px;
+}
+
+.modal-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.modal-topo h2 {
+  margin: 0;
+  font-size: 1.375rem;
+}
+
+.modal-fechar {
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--raio);
+  background: none;
+  color: var(--texto-suave);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.modal-fechar:hover {
+  background: var(--fundo);
+}
+
+/* Ficha do paciente */
+
+.ficha {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 10px 16px;
+  margin: 0;
+}
+
+.ficha dt {
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.ficha dd {
+  margin: 0;
 }
 
 .caixa-login {
@@ -722,6 +839,27 @@ a {
 
   .caixa-login {
     padding: 20px;
+  }
+
+  .filtros .campo {
+    flex: 1 1 100%;
+  }
+
+  .modal-fundo {
+    padding: 16px 8px;
+  }
+
+  .modal {
+    padding: 16px;
+  }
+
+  .ficha {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .ficha dd {
+    margin-bottom: 10px;
   }
 
   .hero-conteudo {

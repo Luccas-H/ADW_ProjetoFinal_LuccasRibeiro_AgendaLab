@@ -24,7 +24,7 @@ const NOME = /^[\p{L} '-]+$/u
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const USUARIO = /^[a-z0-9._]{3,20}$/i
 
-function validarNome(valor) {
+export function validarNome(valor) {
   const texto = valor.trim()
   if (!texto) return 'Campo obrigatório'
   if (texto.length < 3) return 'Use pelo menos 3 caracteres'
