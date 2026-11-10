@@ -1,5 +1,7 @@
+const mongoose = require('mongoose')
 const Medico = require('../models/Medico')
 const Especialidade = require('../models/Especialidade')
+const Horario = require('../models/Horario')
 const ErroHttp = require('../utils/ErroHttp')
 
 async function verificarEspecialidade(id) {
@@ -37,14 +39,29 @@ async function atualizar(req, res) {
   if (!medico) {
     throw new ErroHttp(404, 'Médico não encontrado')
   }
+
+  // Os horários guardam a especialidade do médico, então acompanham a troca
+  await Horario.updateMany({ medico: medico._id }, { especialidade: medico.especialidade })
+
   res.json(medico)
 }
 
 async function excluir(req, res) {
+  const temConsultaFutura = await Horario.exists({
+    medico: req.params.id,
+    paciente: mongoose.trusted({ $ne: null }),
+    dataHora: mongoose.trusted({ $gt: new Date() })
+  })
+  if (temConsultaFutura) {
+    throw new ErroHttp(409, 'Esse médico tem consultas futuras marcadas')
+  }
+
   const medico = await Medico.findByIdAndDelete(req.params.id)
   if (!medico) {
     throw new ErroHttp(404, 'Médico não encontrado')
   }
+
+  await Horario.deleteMany({ medico: medico._id })
   res.status(204).end()
 }
 

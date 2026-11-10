@@ -5,6 +5,9 @@ const mongoose = require('mongoose')
 const { MongoMemoryServer } = require('mongodb-memory-server')
 const { conectar } = require('../src/config/db')
 const Usuario = require('../src/models/Usuario')
+const Especialidade = require('../src/models/Especialidade')
+const Medico = require('../src/models/Medico')
+const Horario = require('../src/models/Horario')
 const { gerarToken } = require('../src/utils/token')
 
 const CPFS_VALIDOS = ['52998224725', '11144477735', '93541134780', '28625587887']
@@ -97,12 +100,51 @@ function tokenPara(usuario) {
   return gerarToken(usuario)
 }
 
+// Data de amanhã no horário local (America/Boa_Vista nos testes)
+function amanha(hora = 9, minuto = 0) {
+  const data = new Date()
+  data.setDate(data.getDate() + 1)
+  data.setHours(hora, minuto, 0, 0)
+  return data
+}
+
+const NOMES_MEDICOS = ['Helena Prado', 'Paulo Sena', 'Rui Tavares', 'Lia Couto']
+let contadorMedicos = 0
+
+async function criarMedico(nomeEspecialidade = 'Cardiologia') {
+  contadorMedicos++
+
+  let especialidade = await Especialidade.findOne({ nome: nomeEspecialidade })
+  if (!especialidade) {
+    especialidade = await Especialidade.create({ nome: nomeEspecialidade })
+  }
+
+  return Medico.create({
+    nome: NOMES_MEDICOS[contadorMedicos % NOMES_MEDICOS.length],
+    crm: `${contadorMedicos}/RR`,
+    especialidade: especialidade._id
+  })
+}
+
+// Cria direto pelo model, então aceita datas no passado
+function criarHorario(medico, dataHora = amanha(), paciente = null) {
+  return Horario.create({
+    medico: medico._id,
+    especialidade: medico.especialidade,
+    dataHora,
+    paciente: paciente ? paciente._id : null
+  })
+}
+
 module.exports = {
   iniciarBanco,
   limparBanco,
   pararBanco,
   criarUsuario,
   tokenPara,
+  amanha,
+  criarMedico,
+  criarHorario,
   DADOS_PACIENTE,
   CPFS_VALIDOS
 }

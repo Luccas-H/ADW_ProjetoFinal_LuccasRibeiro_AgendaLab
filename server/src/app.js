@@ -5,6 +5,7 @@ const { tratarErros, rotaNaoEncontrada } = require('./middlewares/erros')
 const authRoutes = require('./routes/auth')
 const especialidadeRoutes = require('./routes/especialidades')
 const medicoRoutes = require('./routes/medicos')
+const horarioRoutes = require('./routes/horarios')
 
 const app = express()
 
@@ -22,6 +23,7 @@ app.get('/api/saude', (req, res) => {
 app.use('/api/auth', authRoutes)
 app.use('/api/especialidades', especialidadeRoutes)
 app.use('/api/medicos', medicoRoutes)
+app.use('/api/horarios', horarioRoutes)
 
 app.use(rotaNaoEncontrada)
 app.use(tratarErros)
