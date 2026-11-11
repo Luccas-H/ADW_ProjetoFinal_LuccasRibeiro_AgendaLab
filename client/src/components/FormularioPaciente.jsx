@@ -1,8 +1,16 @@
 import { useRef, useState } from 'react'
 import Campo from './Campo'
-import { TIPOS_SANGUINEOS, CONVENIOS, ESTADOS } from '../utils/listas'
+import { SEXOS, TIPOS_SANGUINEOS, CONVENIOS, ESTADOS } from '../utils/listas'
 import { validarPaciente } from '../utils/validacao'
-import { apenasDigitos, mascaraCep, mascaraCpf, mascaraTelefone } from '../utils/formatar'
+import {
+  apenasDigitos,
+  dataParaIso,
+  isoParaData,
+  mascaraCep,
+  mascaraCpf,
+  mascaraData,
+  mascaraTelefone
+} from '../utils/formatar'
 
 const VAZIO = {
   usuario: '',
@@ -11,6 +19,8 @@ const VAZIO = {
   confirmarSenha: '',
   nome: '',
   dataNascimento: '',
+  sexo: '',
+  sexoDescricao: '',
   cpf: '',
   telefone: '',
   filiacao: '',
@@ -27,7 +37,9 @@ function prepararInicial(inicial) {
     ...inicial,
     senha: '',
     confirmarSenha: '',
-    dataNascimento: inicial.dataNascimento ? inicial.dataNascimento.slice(0, 10) : '',
+    dataNascimento: isoParaData(inicial.dataNascimento),
+    sexo: inicial.sexo || '',
+    sexoDescricao: inicial.sexoDescricao || '',
     cpf: mascaraCpf(inicial.cpf || ''),
     telefone: mascaraTelefone(inicial.telefone || ''),
     endereco: {
@@ -106,8 +118,11 @@ function FormularioPaciente({ modo, inicial, enviando, errosApi = {}, textoBotao
     }
 
     // A confirmação de senha só serve aqui na tela. Na edição, usuário, senha e CPF não vão.
-    const envio = { ...dados }
+    const envio = { ...dados, dataNascimento: dataParaIso(dados.dataNascimento) }
     delete envio.confirmarSenha
+    if (envio.sexo !== 'Outro') {
+      delete envio.sexoDescricao
+    }
     if (!cadastro) {
       delete envio.usuario
       delete envio.senha
@@ -190,9 +205,10 @@ function FormularioPaciente({ modo, inicial, enviando, errosApi = {}, textoBotao
           <Campo
             id="dataNascimento"
             rotulo="Data de nascimento"
-            type="date"
+            inputMode="numeric"
+            placeholder="dd/mm/aaaa"
             value={dados.dataNascimento}
-            onChange={(e) => alterar('dataNascimento', e.target.value)}
+            onChange={(e) => alterar('dataNascimento', mascaraData(e.target.value))}
             erro={erro('dataNascimento')}
           />
           <Campo
@@ -204,6 +220,44 @@ function FormularioPaciente({ modo, inicial, enviando, errosApi = {}, textoBotao
             readOnly={!cadastro}
             erro={erro('cpf')}
           />
+
+          {/* Sexo ocupa a linha inteira; o campo de "Outro" aparece na mesma linha */}
+          <div
+            className={erro('sexo') || erro('sexoDescricao') ? 'campo campo-invalido largo' : 'campo largo'}
+          >
+            <span className="rotulo-campo" id="sexo-rotulo">
+              Sexo
+            </span>
+            <div className="opcoes" role="radiogroup" aria-labelledby="sexo-rotulo">
+              {SEXOS.map((sexo) => (
+                <label key={sexo} className="opcao">
+                  <input
+                    type="radio"
+                    name="sexo"
+                    value={sexo}
+                    checked={dados.sexo === sexo}
+                    onChange={(e) => alterar('sexo', e.target.value)}
+                  />
+                  {sexo}
+                </label>
+              ))}
+              {dados.sexo === 'Outro' && (
+                <input
+                  id="sexoDescricao"
+                  className="opcao-texto"
+                  placeholder="Como você se identifica?"
+                  aria-label="Como você se identifica?"
+                  value={dados.sexoDescricao}
+                  onChange={(e) => alterar('sexoDescricao', e.target.value)}
+                  maxLength={40}
+                />
+              )}
+            </div>
+            {erro('sexo') && <p className="erro-campo">{erro('sexo')}</p>}
+            {erro('sexoDescricao') && (
+              <p className="erro-campo">Escreva como você se identifica.</p>
+            )}
+          </div>
           <Campo
             id="telefone"
             rotulo="Celular com DDD"

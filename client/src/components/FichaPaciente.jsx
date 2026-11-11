@@ -17,6 +17,8 @@ function FichaPaciente({ paciente }) {
       <dd>{mascaraCpf(paciente.cpf)}</dd>
       <dt>Nascimento</dt>
       <dd>{formatarDataNascimento(paciente.dataNascimento)}</dd>
+      <dt>Sexo</dt>
+      <dd>{paciente.sexo === 'Outro' ? paciente.sexoDescricao : paciente.sexo || 'Não informado'}</dd>
       <dt>Celular</dt>
       <dd>{mascaraTelefone(paciente.telefone)}</dd>
       <dt>Mãe ou pai</dt>

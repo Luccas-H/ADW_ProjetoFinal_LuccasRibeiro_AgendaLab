@@ -1,4 +1,4 @@
-import { apenasDigitos } from './formatar'
+import { apenasDigitos, dataParaIso } from './formatar'
 
 // Mesmas regras do backend. Aqui servem só para avisar antes de enviar;
 // quem garante os dados é a API.
@@ -79,10 +79,20 @@ export function validarPaciente(dados, modo) {
   anotar('nome', validarNome(dados.nome))
   anotar('filiacao', validarNome(dados.filiacao))
 
+  const nascimento = dataParaIso(dados.dataNascimento)
+  const anoMinimo = new Date().getFullYear() - 130
   if (!dados.dataNascimento) {
     anotar('dataNascimento', 'Campo obrigatório')
-  } else if (new Date(dados.dataNascimento) > new Date()) {
+  } else if (!nascimento || Number(nascimento.slice(0, 4)) < anoMinimo) {
+    anotar('dataNascimento', 'Data inválida. Use dd/mm/aaaa')
+  } else if (new Date(nascimento) > new Date()) {
     anotar('dataNascimento', 'A data de nascimento não pode ser no futuro')
+  }
+
+  if (!dados.sexo) {
+    anotar('sexo', 'Escolha uma opção da lista')
+  } else if (dados.sexo === 'Outro' && dados.sexoDescricao.trim().length < 2) {
+    anotar('sexoDescricao', 'Campo obrigatório')
   }
 
   const telefone = apenasDigitos(dados.telefone)

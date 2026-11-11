@@ -1,4 +1,6 @@
-const TIPOS_SANGUINEOS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Não sei']
+const SEXOS = ['Masculino', 'Feminino', 'Outro']
+
+const TIPOS_SANGUINEOS =['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Não sei']
 
 const CONVENIOS = [
   'Particular',
@@ -16,4 +18,4 @@ const ESTADOS = [
   'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
 ]
 
-module.exports = { TIPOS_SANGUINEOS, CONVENIOS, ESTADOS }
+module.exports = { SEXOS, TIPOS_SANGUINEOS, CONVENIOS, ESTADOS }

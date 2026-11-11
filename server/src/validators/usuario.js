@@ -1,6 +1,6 @@
 const Joi = require('joi')
 const campos = require('./campos')
-const { TIPOS_SANGUINEOS, CONVENIOS, ESTADOS } = require('./listas')
+const { SEXOS, TIPOS_SANGUINEOS, CONVENIOS, ESTADOS } = require('./listas')
 
 const hoje = new Date()
 const idadeMaxima = new Date(hoje.getFullYear() - 130, hoje.getMonth(), hoje.getDate())
@@ -23,6 +23,13 @@ const dadosPaciente = {
     .min(idadeMaxima)
     .required()
     .messages({ 'date.max': 'A data de nascimento não pode ser no futuro' }),
+  sexo: Joi.string().valid(...SEXOS).required(),
+  // Só existe quando a pessoa escolhe "Outro"; nos outros casos é descartada
+  sexoDescricao: Joi.when('sexo', {
+    is: 'Outro',
+    then: Joi.string().trim().min(2).max(40).required(),
+    otherwise: Joi.any().strip()
+  }),
   telefone: campos.telefone.required(),
   tipoSanguineo: Joi.string().valid(...TIPOS_SANGUINEOS).required(),
   convenio: Joi.string().valid(...CONVENIOS).required(),

@@ -1,4 +1,6 @@
 // Mesmas listas do backend (server/src/validators/listas.js)
+export const SEXOS = ['Masculino', 'Feminino', 'Outro']
+
 export const TIPOS_SANGUINEOS = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Não sei']
 
 export const CONVENIOS = [

@@ -28,6 +28,9 @@ const usuarioSchema = new mongoose.Schema(
 
     // Campos usados só por pacientes
     dataNascimento: Date,
+    sexo: String,
+    // Preenchido só quando o sexo é "Outro"
+    sexoDescricao: String,
     cpf: { type: String, unique: true, sparse: true },
     telefone: String,
     tipoSanguineo: String,

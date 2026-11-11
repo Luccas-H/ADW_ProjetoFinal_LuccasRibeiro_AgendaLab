@@ -18,6 +18,7 @@ const DADOS_PACIENTE = {
   email: 'maria@email.com',
   senha: 'senha1234',
   dataNascimento: '1990-05-20',
+  sexo: 'Feminino',
   cpf: '529.982.247-25',
   telefone: '(95) 99123-4567',
   tipoSanguineo: 'O+',
@@ -77,6 +78,7 @@ async function criarUsuario(perfil = 'paciente', extra = {}) {
     contadorPacientes++
     Object.assign(dados, {
       dataNascimento: new Date('1990-05-20'),
+      sexo: 'Feminino',
       cpf: CPFS_VALIDOS[contadorPacientes % CPFS_VALIDOS.length],
       telefone: '95991234567',
       tipoSanguineo: 'O+',
