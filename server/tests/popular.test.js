@@ -14,8 +14,8 @@ afterAll(ajuda.pararBanco)
 test('cria especialidades, médicos, usuários de exemplo, horários e consultas', async () => {
   const resumo = await popular()
 
-  expect(await Especialidade.countDocuments()).toBe(6)
-  expect(await Medico.countDocuments()).toBe(8)
+  expect(await Especialidade.countDocuments()).toBe(14)
+  expect(await Medico.countDocuments()).toBe(16)
   expect(await Usuario.countDocuments({ perfil: 'paciente' })).toBe(3)
   expect(await Usuario.countDocuments({ perfil: 'recepcionista' })).toBe(1)
   expect(await Horario.countDocuments()).toBeGreaterThan(50)
@@ -34,11 +34,26 @@ test('rodar de novo não duplica nada', async () => {
 
   await popular()
 
-  expect(await Especialidade.countDocuments()).toBe(6)
-  expect(await Medico.countDocuments()).toBe(8)
+  expect(await Especialidade.countDocuments()).toBe(14)
+  expect(await Medico.countDocuments()).toBe(16)
   expect(await Usuario.countDocuments()).toBe(4)
   expect(await Horario.countDocuments()).toBe(horariosAntes)
   expect(await Horario.countDocuments({ paciente: mongoose.trusted({ $ne: null }) })).toBe(consultasAntes)
+})
+
+test('completa a descrição de especialidade que foi criada sem descrição', async () => {
+  await Especialidade.updateOne({ nome: 'Cardiologia' }, { descricao: '' })
+
+  await popular()
+
+  const cardiologia = await Especialidade.findOne({ nome: 'Cardiologia' })
+  expect(cardiologia.descricao).toBe('Coração e pressão arterial')
+})
+
+test('pacientes de exemplo têm sexo preenchido', async () => {
+  const semSexo = await Usuario.countDocuments({ perfil: 'paciente', sexo: null })
+
+  expect(semSexo).toBe(0)
 })
 
 test('as contas de exemplo entram com as senhas do README', async () => {

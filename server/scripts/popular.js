@@ -14,7 +14,15 @@ const ESPECIALIDADES = [
   { nome: 'Ortopedia', descricao: 'Ossos, músculos e articulações' },
   { nome: 'Dermatologia', descricao: 'Pele, cabelo e unhas' },
   { nome: 'Clínica Geral', descricao: 'Consultas de rotina e encaminhamentos' },
-  { nome: 'Oftalmologia', descricao: 'Olhos e visão' }
+  { nome: 'Oftalmologia', descricao: 'Olhos e visão' },
+  { nome: 'Neurologia', descricao: 'Cérebro, nervos e dores de cabeça' },
+  { nome: 'Ginecologia e Obstetrícia', descricao: 'Saúde da mulher e acompanhamento da gravidez' },
+  { nome: 'Psiquiatria', descricao: 'Saúde mental, ansiedade e depressão' },
+  { nome: 'Endocrinologia', descricao: 'Hormônios, diabetes e tireoide' },
+  { nome: 'Gastroenterologia', descricao: 'Estômago, intestino e fígado' },
+  { nome: 'Otorrinolaringologia', descricao: 'Ouvido, nariz e garganta' },
+  { nome: 'Urologia', descricao: 'Rins, bexiga e saúde do homem' },
+  { nome: 'Pneumologia', descricao: 'Pulmões e respiração' }
 ]
 
 const MEDICOS = [
@@ -25,7 +33,15 @@ const MEDICOS = [
   { nome: 'Dr. Rui Tavares', crm: '1005/RR', especialidade: 'Ortopedia' },
   { nome: 'Dra. Lia Couto', crm: '1006/RR', especialidade: 'Dermatologia' },
   { nome: 'Dr. André Lopes', crm: '1007/RR', especialidade: 'Clínica Geral' },
-  { nome: 'Dra. Camila Rocha', crm: '1008/RR', especialidade: 'Oftalmologia' }
+  { nome: 'Dra. Camila Rocha', crm: '1008/RR', especialidade: 'Oftalmologia' },
+  { nome: 'Dr. Fábio Martins', crm: '1009/RR', especialidade: 'Neurologia' },
+  { nome: 'Dra. Juliana Castro', crm: '1010/RR', especialidade: 'Ginecologia e Obstetrícia' },
+  { nome: 'Dra. Renata Alves', crm: '1011/RR', especialidade: 'Psiquiatria' },
+  { nome: 'Dr. Gustavo Ramos', crm: '1012/RR', especialidade: 'Endocrinologia' },
+  { nome: 'Dra. Patrícia Gomes', crm: '1013/RR', especialidade: 'Gastroenterologia' },
+  { nome: 'Dr. Eduardo Melo', crm: '1014/RR', especialidade: 'Otorrinolaringologia' },
+  { nome: 'Dr. Ricardo Farias', crm: '1015/RR', especialidade: 'Urologia' },
+  { nome: 'Dra. Sofia Barros', crm: '1016/RR', especialidade: 'Pneumologia' }
 ]
 
 function endereco(rua, numero) {
@@ -39,6 +55,7 @@ const PACIENTES = [
     email: 'maria@exemplo.com',
     cpf: '52998224725',
     dataNascimento: new Date('1990-05-20'),
+    sexo: 'Feminino',
     telefone: '95991234567',
     tipoSanguineo: 'O+',
     convenio: 'Unimed',
@@ -51,6 +68,7 @@ const PACIENTES = [
     email: 'joao@exemplo.com',
     cpf: '11144477735',
     dataNascimento: new Date('1985-09-02'),
+    sexo: 'Masculino',
     telefone: '95981112222',
     tipoSanguineo: 'A+',
     convenio: 'SUS',
@@ -63,6 +81,7 @@ const PACIENTES = [
     email: 'ana@exemplo.com',
     cpf: '93541134780',
     dataNascimento: new Date('2001-12-11'),
+    sexo: 'Feminino',
     telefone: '95984443333',
     tipoSanguineo: 'B-',
     convenio: 'Particular',
@@ -85,7 +104,14 @@ const DIAS_A_FRENTE = 14
 
 async function buscarOuCriarUsuario(dados) {
   const existente = await Usuario.findOne({ usuario: dados.usuario })
-  if (existente) return existente
+  if (existente) {
+    // Pacientes criados por versões antigas do script não tinham sexo
+    if (dados.sexo && !existente.sexo) {
+      existente.sexo = dados.sexo
+      await existente.save()
+    }
+    return existente
+  }
 
   try {
     return await Usuario.create(dados)
@@ -140,6 +166,11 @@ async function popular() {
       locale: 'pt',
       strength: 2
     })
+    // Especialidade criada à mão sem descrição ganha a descrição de exemplo
+    if (existente && !existente.descricao) {
+      existente.descricao = dados.descricao
+      await existente.save()
+    }
     especialidades[dados.nome] = existente || (await Especialidade.create(dados))
   }
 
