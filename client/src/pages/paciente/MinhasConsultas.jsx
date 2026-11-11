@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import api from '../../api/api'
 import useAgora from '../../hooks/useAgora'
 import useEvento from '../../hooks/useEvento'
@@ -40,10 +40,12 @@ function CartaoConsulta({ consulta, passou, onDesmarcar }) {
 
 function MinhasConsultas() {
   const agora = useAgora()
+  const location = useLocation()
   const [consultas, setConsultas] = useState(null)
   const [versao, setVersao] = useState(0)
   const [erro, setErro] = useState('')
-  const [sucesso, setSucesso] = useState('')
+  // Mensagem enviada pela tela de agendar depois de marcar a consulta
+  const [sucesso, setSucesso] = useState(location.state?.mensagem || '')
 
   useEffect(() => {
     let ativo = true
