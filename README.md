@@ -20,6 +20,9 @@ O backend segue o padrão MVC adaptado para API: `models` (Mongoose), `controlle
 | Marcar consulta para si | sim | | |
 | Marcar consulta para um paciente | | sim | sim |
 | Desmarcar consulta | só as próprias | qualquer | qualquer |
+| Procurar consultas por paciente, convênio ou médico | | sim | sim |
+| Remarcar consulta (outro dia, horário ou médico da mesma especialidade) | | sim | sim |
+| Receber aviso no sino quando a recepção marca, remarca ou desmarca | sim | | |
 | Abrir e excluir horários | | sim | sim |
 | Ver o painel do dia | | sim | sim |
 | Ver nome, telefone e convênio do paciente | | sim | sim |
@@ -76,7 +79,7 @@ Para não começar com o banco vazio, rode na pasta `server`:
 npm run popular
 ```
 
-O script cria 6 especialidades, 8 médicos, horários livres nos dias úteis das próximas duas semanas e algumas consultas marcadas. Ele também cria estas contas:
+O script cria 14 especialidades, 16 médicos, horários livres nos dias úteis das próximas duas semanas e algumas consultas marcadas. Ele também cria estas contas:
 
 | Perfil | Usuário | Senha |
 |---|---|---|
@@ -129,14 +132,17 @@ npm test
 
 Os testes não precisam de configuração: eles sobem um MongoDB temporário em memória. Na primeira vez, o MongoDB é baixado (cerca de 120 MB), então demora um pouco mais.
 
-São 100 testes, que cobrem:
+São 137 testes, que cobrem:
 
 - cadastro e validação (CPF, senha, campos obrigatórios, tentativa de se cadastrar como Admin)
 - login, token e bloqueio depois de 5 senhas erradas
 - permissões de cada perfil (401 e 403)
 - CRUD de especialidades e médicos
 - agendamento: horário ocupado, dois pacientes clicando ao mesmo tempo, uma consulta por especialidade, desmarcar
+- remarcação: horário ocupado, mesma especialidade, consulta que já passou
+- busca de consultas por nome, telefone, CPF, convênio e médico
 - gestão de usuários, busca de pacientes e painel
+- avisos do paciente quando a recepção marca, remarca ou desmarca
 - avisos em tempo real com Socket.io
 - script de dados de exemplo (não duplica e as contas funcionam no login)
 
@@ -180,10 +186,14 @@ Todas começam com `/api`. As rotas protegidas recebem o token no cabeçalho `Au
 | PUT, DELETE | `/medicos/:id` | admin |
 | GET | `/horarios?inicio=&fim=` | logado |
 | GET | `/horarios/meus` | paciente |
+| GET | `/horarios/busca?q=&convenio=&medico=` (nome, telefone ou CPF do paciente) | recepcionista, admin |
 | POST | `/horarios` | recepcionista, admin |
 | DELETE | `/horarios/:id` | recepcionista, admin |
 | PATCH | `/horarios/:id/agendar` | logado |
 | PATCH | `/horarios/:id/cancelar` | dono da consulta, recepcionista, admin |
+| PATCH | `/horarios/:id/remarcar` | recepcionista, admin |
+| GET | `/notificacoes` | paciente |
+| PATCH | `/notificacoes/lidas` | paciente |
 | GET | `/painel` | recepcionista, admin |
 
 ## Segurança
