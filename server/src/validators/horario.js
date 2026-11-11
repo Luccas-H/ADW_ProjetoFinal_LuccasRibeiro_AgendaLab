@@ -1,5 +1,6 @@
 const Joi = require('joi')
 const campos = require('./campos')
+const { CONVENIOS } = require('./listas')
 
 const criarHorarioSchema = Joi.object({
   medico: campos.objectId.required(),
@@ -23,4 +24,23 @@ const agendarSchema = Joi.object({
   pacienteId: campos.objectId
 })
 
-module.exports = { criarHorarioSchema, filtroHorariosSchema, agendarSchema }
+const remarcarSchema = Joi.object({
+  novoHorarioId: campos.objectId.required()
+})
+
+// Pelo menos um filtro: texto (nome, telefone ou CPF), convênio ou médico
+const buscaConsultasSchema = Joi.object({
+  q: Joi.string().trim().min(2).max(60),
+  convenio: Joi.string().valid(...CONVENIOS),
+  medico: campos.objectId
+})
+  .or('q', 'convenio', 'medico')
+  .messages({ 'object.missing': 'Digite um nome, telefone ou CPF, ou escolha um convênio ou médico' })
+
+module.exports = {
+  criarHorarioSchema,
+  filtroHorariosSchema,
+  agendarSchema,
+  remarcarSchema,
+  buscaConsultasSchema
+}

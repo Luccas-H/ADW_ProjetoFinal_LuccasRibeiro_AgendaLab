@@ -9,6 +9,7 @@ const horarioRoutes = require('./routes/horarios')
 const usuarioRoutes = require('./routes/usuarios')
 const pacienteRoutes = require('./routes/pacientes')
 const painelRoutes = require('./routes/painel')
+const notificacaoRoutes = require('./routes/notificacoes')
 
 const app = express()
 
@@ -30,6 +31,7 @@ app.use('/api/horarios', horarioRoutes)
 app.use('/api/usuarios', usuarioRoutes)
 app.use('/api/pacientes', pacienteRoutes)
 app.use('/api/painel', painelRoutes)
+app.use('/api/notificacoes', notificacaoRoutes)
 
 app.use(rotaNaoEncontrada)
 app.use(tratarErros)

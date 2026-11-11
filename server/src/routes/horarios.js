@@ -6,7 +6,9 @@ const { validar } = require('../middlewares/validar')
 const {
   criarHorarioSchema,
   filtroHorariosSchema,
-  agendarSchema
+  agendarSchema,
+  remarcarSchema,
+  buscaConsultasSchema
 } = require('../validators/horario')
 const horarioController = require('../controllers/horarioController')
 
@@ -14,6 +16,13 @@ const router = Router()
 
 router.get('/', autenticar, validar(filtroHorariosSchema, 'query'), horarioController.listar)
 router.get('/meus', autenticar, permitir('paciente'), horarioController.meus)
+router.get(
+  '/busca',
+  autenticar,
+  permitir('recepcionista', 'admin'),
+  validar(buscaConsultasSchema, 'query'),
+  horarioController.buscarConsultas
+)
 
 router.post(
   '/',
@@ -32,5 +41,13 @@ router.delete(
 
 router.patch('/:id/agendar', autenticar, validarId, validar(agendarSchema), horarioController.agendar)
 router.patch('/:id/cancelar', autenticar, validarId, horarioController.cancelar)
+router.patch(
+  '/:id/remarcar',
+  autenticar,
+  permitir('recepcionista', 'admin'),
+  validarId,
+  validar(remarcarSchema),
+  horarioController.remarcar
+)
 
 module.exports = router

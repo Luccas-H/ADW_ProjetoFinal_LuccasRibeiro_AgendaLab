@@ -87,6 +87,23 @@ test('equipe recebe aviso quando paciente marca consulta', async () => {
   expect(new Date(dados.dataHora).getTime()).toBe(horario.dataHora.getTime())
 })
 
+test('paciente recebe o aviso na hora quando a recepção marca para ele', async () => {
+  const horario = await criarHorario(await criarMedico(), amanha(9))
+  const pacienteUsuario = await criarUsuario()
+  const paciente = conectar(pacienteUsuario)
+  await conectado(paciente)
+
+  const aviso = esperar(paciente, 'notificacao:nova')
+  await request(servidor)
+    .patch(`/api/horarios/${horario._id}/agendar`)
+    .set('Authorization', `Bearer ${tokenPara(await criarUsuario('recepcionista'))}`)
+    .send({ pacienteId: String(pacienteUsuario._id) })
+  const dados = await aviso
+
+  expect(dados.mensagem).toContain('A recepção marcou uma consulta de Cardiologia para você')
+  expect(dados.lida).toBe(false)
+})
+
 test('todos recebem horarios:mudou quando a recepcionista desmarca', async () => {
   const medico = await criarMedico()
   const pacienteUsuario = await criarUsuario()

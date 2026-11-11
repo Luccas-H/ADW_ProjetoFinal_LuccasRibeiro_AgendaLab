@@ -20,6 +20,7 @@ function iniciarSocket(servidorHttp) {
         throw new Error('Usuário não existe mais')
       }
       socket.data.perfil = usuario.perfil
+      socket.data.usuarioId = String(usuario._id)
       next()
     } catch {
       next(new Error('Não autorizado'))
@@ -27,6 +28,8 @@ function iniciarSocket(servidorHttp) {
   })
 
   io.on('connection', (socket) => {
+    // Sala só da pessoa, para os avisos que são só dela
+    socket.join(`usuario:${socket.data.usuarioId}`)
     if (['recepcionista', 'admin'].includes(socket.data.perfil)) {
       socket.join('equipe')
     }
@@ -49,4 +52,17 @@ function notificarHorariosMudaram(especialidadeId) {
   }
 }
 
-module.exports = { iniciarSocket, notificarConsultaMarcada, notificarHorariosMudaram }
+// Aviso novo no sino de um usuário
+function notificarUsuario(usuarioId, notificacao) {
+  if (io) {
+    const { _id, mensagem, lida, createdAt } = notificacao
+    io.to(`usuario:${usuarioId}`).emit('notificacao:nova', { _id, mensagem, lida, createdAt })
+  }
+}
+
+module.exports = {
+  iniciarSocket,
+  notificarConsultaMarcada,
+  notificarHorariosMudaram,
+  notificarUsuario
+}
