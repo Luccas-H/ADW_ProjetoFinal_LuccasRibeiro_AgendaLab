@@ -1,28 +1,10 @@
 import { startTransition, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import Logo from './Logo'
+import SinoNotificacoes from './SinoNotificacoes'
 import useAuth from '../hooks/useAuth'
 import { NOMES_PERFIL } from '../utils/rotas'
-
-// Itens do menu de cada perfil: [rota, texto]
-const MENUS = {
-  paciente: [
-    ['/paciente/agendar', 'Agendar'],
-    ['/paciente/consultas', 'Minhas consultas'],
-    ['/paciente/dados', 'Meus dados']
-  ],
-  recepcionista: [
-    ['/equipe/painel', 'Painel'],
-    ['/equipe/agenda', 'Agenda']
-  ],
-  admin: [
-    ['/equipe/painel', 'Painel'],
-    ['/equipe/agenda', 'Agenda'],
-    ['/admin/especialidades', 'Especialidades'],
-    ['/admin/medicos', 'Médicos'],
-    ['/admin/usuarios', 'Usuários']
-  ]
-}
+import { MENUS } from '../utils/menus'
 
 function classeDoLink({ isActive }) {
   return isActive ? 'menu-link ativo' : 'menu-link'
@@ -45,6 +27,8 @@ function Cabecalho() {
       <div className="faixa-manchester" />
       <div className="container cabecalho-barra">
         <Logo />
+
+        {usuario?.perfil === 'paciente' && <SinoNotificacoes />}
 
         <button
           type="button"
@@ -83,8 +67,17 @@ function Cabecalho() {
             </>
           ) : (
             <>
-              <Link to="/#especialidades" className="menu-link">
-                Especialidades
+              <Link to="/#como-funciona" className="menu-link">
+                Como funciona
+              </Link>
+              <Link to="/#recursos" className="menu-link">
+                Recursos
+              </Link>
+              <Link to="/#duvidas" className="menu-link">
+                Dúvidas
+              </Link>
+              <Link to="/#contato" className="menu-link">
+                Contato
               </Link>
               <Link to="/login" className="botao">
                 Entrar
